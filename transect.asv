@@ -1,0 +1,29 @@
+function t = transect(comp,extras)
+% This function takes a composite as input, and averages along a transect
+% defined by extras.t_start/end. The function creates bins along the
+% transect of size d_lat*d_lon. If one value lies within the bin then that
+% is the value along the transect at that point. If more than one value is
+% present, then the values are averaged.
+%Output is in a data structure, t.
+x_t=extras.start_lon+extras.d_lon/2:extras.d_lon:extras.end_lon+extras.d_lon/2;
+y_t=extras.start_lat+extras.d_lat/2:extras.d_lat:extras.end_lat+extras.d_lat/2;
+[X_T,Y_T] = meshgrid(x_t,y_t);
+
+t.x_t = linspace(min([extras.t_end1(2),extras.t_start1(2)]),max([extras.t_end1(2),extras.t_start1(2)]),...
+    abs(floor((extras.t_end1(2) - extras.t_start1(2))/extras.d_lon))+1);
+t.y_t = linspace(min([extras.t_end1(1),extras.t_start1(1)]),max([extras.t_end1(1),extras.t_start1(1)]),...
+    abs(floor((extras.t_end1(1) - extras.t_start1(1))/extras.d_lat))+1);
+% t.x_t = linspace(extras.t_start1(1),extras.t_end1(1),nx);
+% t.y_t = linspace(extras.t_start1(2),extras.t_end1(2),nx);
+
+t.amp = zeros(1,length(t.x_t));
+
+for ii = [1,4]  %Loop over the two filled diurnal bins
+       [r,c] = find(X_T >= t.x_t(1) & X_T  & Y_T <= t.y_t(end));
+       for i = 1:length(r)
+           lat = floor((Y_T(r(i),c(i))+90-(t.y_t(1)+90))/extras.d_lat+1);
+           lon = floor((X_T(r(i),c(i))-t.x_t(1))/extras.d_lon+1);
+           t.amp(i) = nanmean(nanmean(((comp.diff_U{1}(r,c)).^2 + comp.diff_V{1}(r,c).^2).^(1/2)));
+       end
+end
+end

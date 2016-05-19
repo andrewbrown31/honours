@@ -1,0 +1,20 @@
+[n,m,l] = size(ascat_struct.pert_U{1});
+for i = 1:n
+    for j = 1:m
+        for k = 1:l
+            
+            [Test_U(i,j),~,~,~] = ttest2(ascat_struct.daily_U(i,j,:),ascat_struct.pert_U{4}(i,j,:));
+            [Test_V(i,j),~,~,~] = ttest2(ascat_struct.daily_V(i,j,:),ascat_struct.pert_V{4}(i,j,:));
+            
+        end
+    end
+end
+
+[ru,cu] = find(Test_U == 1 & Test_V == 1);
+[rs,cs] = find(Test_U == 0 & Test_V == 0);
+for i = 1:length(ru)
+    amp_u(ru(i),cu(i)) = comp.ws.pert{1}(ru(i),cu(i)) - comp.ws.pert{4}(ru(i),cu(i));
+end
+for i = 1:length(rs)
+    amp_s(rs(i),cs(i)) = comp.ws.pert{1}(rs(i),cs(i)) - comp.ws.pert{4}(rs(i),cs(i));
+end
